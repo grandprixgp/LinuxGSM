@@ -77,7 +77,9 @@ if [ "${script_diff}" != "" ]; then
 	if [ ! -d "${backupdir}/script" ]; then
 		mkdir -p "${backupdir}/script"
 	fi
-	cp "${rootdir}/${selfname}" "${backupdir}/script/${selfname}-$(date +"%m_%d_%Y_%M").bak"
+	
+	backup_name="${backupdir}/script/${selfname}-$(date +"%m_%d_%Y_%M").bak"
+	cp "${rootdir}/${selfname}" "$backup_name"
 	if [ $? != 0 ]; then
 		fn_print_fail_eol_nl
 		fn_script_log_fatal "Backup ${selfname}"
@@ -91,15 +93,20 @@ if [ "${script_diff}" != "" ]; then
 
 	echo -en "copying ${selfname}...\c"
 	fn_script_log_info "copying ${selfname}"
-	cp "${tmpdir}/linuxgsm.sh" "${rootdir}/${selfname}"
-	sed -i "s+shortname=\"core\"+shortname=\"${shortname}\"+g" "${rootdir}/${selfname}"
-	sed -i "s+gameservername=\"core\"+gameservername=\"${gameservername}\"+g" "${rootdir}/${selfname}"
-	sed -i "s+gamename=\"core\"+gamename=\"${gamename}\"+g" "${rootdir}/${selfname}"
-	sed -i "s+githubuser=\"GameServerManagers\"+githubuser=\"${githubuser}\"+g" "${rootdir}/${selfname}"
-	sed -i "s+githubrepo=\"LinuxGSM\"+githubrepo=\"${githubrepo}\"+g" "${rootdir}/${selfname}"
-	sed -i "s+githubbranch=\"master\"+githubbranch=\"${githubbranch}\"+g" "${rootdir}/${selfname}"
+	
+	cp "${tmpdir}/linuxgsm.sh" "${tmpdir}/${selfname}"
+	
+	sed -i "s+shortname=\"core\"+shortname=\"${shortname}\"+g" "${tmpdir}/${selfname}"
+	sed -i "s+gameservername=\"core\"+gameservername=\"${gameservername}\"+g" "${tmpdir}/${selfname}"
+	sed -i "s+gamename=\"core\"+gamename=\"${gamename}\"+g" "${tmpdir}/${selfname}"
+	sed -i "s+githubuser=\"GameServerManagers\"+githubuser=\"${githubuser}\"+g" "${tmpdir}/${selfname}"
+	sed -i "s+githubrepo=\"LinuxGSM\"+githubrepo=\"${githubrepo}\"+g" "${tmpdir}/${selfname}"
+	sed -i "s+githubbranch=\"master\"+githubbranch=\"${githubbranch}\"+g" "${tmpdir}/${selfname}"
+	cp "${tmpdir}/${selfname}" "${rootdir}/${selfname}"
+	rm -f "${tmpdir}/${selfname}"
 
 	if [ $? != "0" ]; then
+		cp "$backup_name" "$rootdir/${selfname}"
 		fn_print_fail_eol_nl
 		fn_script_log_fatal "copying ${selfname}"
 		core_exit.sh
